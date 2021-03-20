@@ -877,32 +877,34 @@ local function setup(opts)
   end
 end
 
+local function get_icon_config(name, ext, opts)
+  local icon_data = icons[name]
+  if icon_data ~= nil then
+    return icon_data
+  end
+
+  icon_data = icons[ext]
+
+  if not icon_data and ((opts and opts.default) or global_opts.default) then
+    icon_data = default_icon
+  end
+
+  return icon_data
+end
+
 local function get_icon(name, ext, opts)
   if not loaded then
     setup()
   end
 
-  local icon_data = icons[name]
-  local by_name = icon_data and icon_data.icon or nil
+  local icon_data = get_icon_config(name, ext, opts)
 
-  if by_name then
-    return by_name, get_highlight_name(icon_data)
-  else
-    icon_data = icons[ext]
-
-    if not icon_data and ((opts and opts.default) or global_opts.default) then
-      icon_data = default_icon
-    end
-
-    if icon_data then
-      local by_ext = icon_data.icon
-      return by_ext, get_highlight_name(icon_data)
-    end
-  end
+  return icon_data.icon, get_highlight_name(icon_data)
 end
 
 return {
   get_icon = get_icon,
+  get_icon_config = get_icon_config,
   setup = setup,
   has_loaded = function() return loaded end,
 }
